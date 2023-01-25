@@ -365,7 +365,7 @@ class Election(HeliosModel):
     """
     has voting begun? voting begins if the election is frozen, at the prescribed date or at the date that voting was forced to start
     """
-    return self.frozen_at is not None and (self.voting_starts_at is None or (datetime.datetime.utcnow() >= (self.voting_started_at or self.voting_starts_at)))
+    return self.frozen_at is not None and (self.voting_starts_at is None or (datetime.datetime.now() >= (self.voting_started_at or self.voting_starts_at)))
     
   def voting_has_stopped(self):
     """
@@ -373,7 +373,7 @@ class Election(HeliosModel):
     or failing that the date voting was extended until, or failing that the date voting is scheduled to end at.
     """
     voting_end = self.voting_ended_at or self.voting_extended_until or self.voting_ends_at
-    return (voting_end is not None and datetime.datetime.utcnow() >= voting_end) or self.encrypted_tally
+    return (voting_end is not None and datetime.datetime.now() >= voting_end) or self.encrypted_tally
 
   @property
   def issues_before_freeze(self):
@@ -407,7 +407,7 @@ class Election(HeliosModel):
     return issues    
 
   def ready_for_tallying(self):
-    return datetime.datetime.utcnow() >= self.tallying_starts_at
+    return datetime.datetime.now() >= self.tallying_starts_at
 
   def compute_tally(self):
     """
@@ -440,7 +440,7 @@ class Election(HeliosModel):
     if not self.result:
       return
 
-    self.result_released_at = datetime.datetime.utcnow()
+    self.result_released_at = datetime.datetime.now()
   
   def combine_decryptions(self):
     """
@@ -528,7 +528,7 @@ class Election(HeliosModel):
     if len(self.issues_before_freeze) > 0:
       raise Exception("cannot freeze an election that has issues")
 
-    self.frozen_at = datetime.datetime.utcnow()
+    self.frozen_at = datetime.datetime.now()
     
     # voters hash
     self.generate_voters_hash()
@@ -594,7 +594,7 @@ class Election(HeliosModel):
     trustee.save()
 
   def append_log(self, text):
-    item = ElectionLog(election = self, log=text, at=datetime.datetime.utcnow())
+    item = ElectionLog(election = self, log=text, at=datetime.datetime.now())
     item.save()
     return item
 
@@ -780,13 +780,17 @@ class VoterFile(models.Model):
         return_dict['name'] = voter_fields[2].strip()
       else:
         return_dict['name'] = return_dict['email']
-
+      # ian edits phone
+      if len(voter_fields) > 3:
+        return_dict['phone'] = voter_fields[3].strip()
+      else:
+        return_dict['phone'] = return_dict['name']
       yield return_dict
     if close:
       voter_stream.close()
     
   def process(self):
-    self.processing_started_at = datetime.datetime.utcnow()
+    self.processing_started_at = datetime.datetime.now()
     self.save()
 
     election = self.election    
@@ -801,10 +805,11 @@ class VoterFile(models.Model):
       existing_voter = Voter.get_by_election_and_voter_id(election, voter['voter_id'])
     
       # create the voter
+      # text edits ian
       if not existing_voter:
         voter_uuid = str(uuid.uuid4())
         existing_voter = Voter(uuid= voter_uuid, user = None, voter_login_id = voter['voter_id'],
-                      voter_name = voter['name'], voter_email = voter['email'], election = election)
+                      voter_name = voter['name'], voter_email = voter['email'], voter_phone = voter['phone'], election = election)
         existing_voter.generate_password()
         new_voters.append(existing_voter)
         existing_voter.save()
@@ -817,7 +822,7 @@ class VoterFile(models.Model):
         voter.save()
 
     self.num_voters = num_voters
-    self.processing_finished_at = datetime.datetime.utcnow()
+    self.processing_finished_at = datetime.datetime.now()
     self.save()
 
     return num_voters
@@ -843,7 +848,9 @@ class Voter(HeliosModel):
   voter_password = models.CharField(max_length = 100, null=True)
   voter_name = models.CharField(max_length = 200, null=True)
   voter_email = models.CharField(max_length = 250, null=True)
-  
+    # ian edits
+  voter_phone = models.CharField(max_length = 250, null=True)
+
   # if election uses aliases
   alias = models.CharField(max_length = 100, null=True)
   
@@ -1103,9 +1110,9 @@ class CastVote(HeliosModel):
     result = self.vote.verify(self.voter.election)
 
     if result:
-      self.verified_at = datetime.datetime.utcnow()
+      self.verified_at = datetime.datetime.now()
     else:
-      self.invalidated_at = datetime.datetime.utcnow()
+      self.invalidated_at = datetime.datetime.now()
       
     # save and store the vote as the voter's last cast vote
     self.save()

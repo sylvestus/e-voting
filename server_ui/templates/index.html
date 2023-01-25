@@ -7,98 +7,107 @@
 
 {% block content %}
 
-<div class="row"><div class="large-5 columns large-centered"><a href="/"><img border="0" src="{{ settings.MAIN_LOGO_URL }}" /></a></div></div>
+<div class="row justify-content-center my-md-4 my-2">
+  <div class="col-sm-8 col-md-6">
+    <a href="/">
+      <img border="0" src="{{ settings.MAIN_LOGO_URL }}" class="img-fluid"/>
+    </a>
+  </div>
+</div>
 <div class="row">&nbsp;</div>
-<div class="large-9 columns">
-  {% if settings.MASTER_HELIOS %}
-<p>Helios offers <b>verifiable online elections</b>.</p>
 
-<p>We believe democracy is important, whether it’s your book club, parent-teacher association, student government, workers’ union, or state. So we’ve made truly verifiable elections as easy as everything else on the Web.</p>
+<div class="row">
+  <div class="col-lg-8">
+    {% if settings.MASTER_HELIOS %}
+    <p>Helios offers <b>verifiable online elections</b>.</p>
 
-<p>
-Helios elections are:
-<ul class="disc">
-<li><b>private</b>: no one knows how you voted.</li>
-<li><b>verifiable</b>: each voter gets a tracking number.</li>
-<li><b>proven</b>: Helios is open-source, vetted by top-tier experts, and in use by major organizations.</li>
-</ul>
+    <p>We believe democracy is important, whether it’s your book club, parent-teacher association, student government, workers’ union, or state. So we’ve made truly verifiable elections as easy as everything else on the Web.</p>
 
-<p>
-More than <b>2,000,000 votes</b> have been cast using Helios.
-</p>
+    <p>
+    Helios elections are:
+    <ul class="disc">
+      <li><b>private</b>: no one knows how you voted.</li>
+      <li><b>verifiable</b>: each voter gets a tracking number.</li>
+      <li><b>proven</b>: Helios is open-source, vetted by top-tier experts, and in use by major organizations.</li>
+    </ul>
 
-{% if create_p %}
-<a class="button" href="{% url "elections@new" %}">create an election</a>
-{% endif %}
+    <p>More than <b>2,000,000 votes</b> have been cast using Helios.</p>
 
-  {% else %}
-  <p style="font-size: 1.4em;">
-    {{settings.WELCOME_MESSAGE|safe}}
-  </p>
-  
-  {% if elections|length %}
-  <p>
-    {% for election in elections %}
-    <div class="panel">
-      <a style="font-size: 1.4em;" href="{% url "shortcut@election" election.short_name %}">{{election.name}}</a>{% if settings.SHOW_USER_INFO %}<br /> by {{election.admin.display_html_small|safe}}{% endif %}
+    <!-- Repetition -->
+    <!-- {% if create_p %}
+      <a class="btn btn-primary w-100" href="{% url "elections@new" %}">create an election</a>
+    {% endif %} -->
+
+    {% else %}
+      <p style="font-size: 1.4em;">
+        {{settings.WELCOME_MESSAGE|safe}}
+      </p>
+    
+      {% if elections|length %}
+        <p>
+          {% for election in elections %}
+          <div class="panel">
+            <a style="font-size: 1.4em;" href="{% url "shortcut@election" election.short_name %}">{{election.name}}</a>{% if settings.SHOW_USER_INFO %}<br /> by {{election.admin.display_html_small|safe}}{% endif %}
+          </div>
+          <br />
+          {% endfor %}
+        </p>
+      {% else %}
+        <h4>no featured elections at the moment</h4>
+      {% endif %}
+    {% endif %}
+    
+  </div>
+
+  <div class="col-lg-4" id="mystuff">
+    <div class="row">&nbsp;</div>
+    <div class="card" id="electionCard">
+      {% if user %}
+      <!--<div class="row right">{{user.display_html_big|safe}}</div>-->
+        {% if create_p %}
+        <div class="card-body">
+          <a class="btn btn-primary w-100" href="{% url "elections@new" %}">create election</a>
+          <h5 class="card-subtitle my-2">Elections you administer</h5>
+          {% if elections_administered %}
+            <ul class="list-group list-group-flush">
+            {% for election in elections_administered %}
+              <li class="list-group-item"> <a class="text-decoration-none" href="{% url "election@view" election.uuid %} " class="text-primary btn-link btn">{{election.name}}</a></li>
+              <!-- <p class="card-text">{{election.description}}</p> -->
+            {% endfor %}
+            </ul>
+          {% else %}
+            <p class="card-text">None yet</p>
+          {% endif %}
+            <a class="btn btn-info" href="{% url "elections@administered" %}">See all</a>
+            <div class="row"></div>
+        {% endif %}
+
+          <h5 class="card-subtitle my-2">Recent Votes</h5>
+          {% if elections_voted %}
+            <p class="card-text">Elections you have participated in</p>
+            <ul class="list-group list-group-flush">
+              {% for election in elections_voted %}
+                <li class="list-group-item"><a class="text-decoration-none" href="{% url "election@view" election.uuid %}">{{election.name}}</a></li>
+              {% endfor %}
+            </ul>
+            <a class="btn btn-info" href="{% url "elections@voted" %}">see all</a>
+          {% else %}
+            <p class="card-text">You have not participated in an election</p>
+          {% endif %}
+        </div>
+        <div class="row"></div>
+      {% else %}
+        {% if settings.SHOW_LOGIN_OPTIONS %}
+          <h5 class="card-header">Log In to Start Voting</h5>
+          <div class="card-body">
+            {{login_box|safe}}
+          </div>
+        {% else %}
+          <p class="card-text">Select an election to start voting. You will be asked for your voting credentials after you complete a ballot.</p>
+        {% endif %}
+      {% endif %}
     </div>
-    <br />
-    {% endfor %}
-  </p>
-  {% else %}
-  <h4>no featured elections at the moment</h4>
-  {% endif %}
-{% endif %}
-  
+  </div>
 </div>
-
-<div class="large-3 columns" id="mystuff">
-<div class="row">&nbsp;</div>
-<div class="panel row">
-{% if user %}
-<!--<div class="row right">{{user.display_html_big|safe}}</div>-->
-{% if create_p %}
-<a class="small button" href="{% url "elections@new" %}">create election</a>
-<h5 class="subheader">Administration</h5>
-{% if elections_administered %}
-<ul>
-{% for election in elections_administered %}
-<li> <a href="{% url "election@view" election.uuid %}">{{election.name}}</a></li>
-{% endfor %}
-</ul>
-{% else %}
-<em>none yet</em>
-{% endif %}
-<div class="row right">
-<a class="tiny button" href="{% url "elections@administered" %}">see all</a>
-</div>
-<div class="row"></div>
-{% endif %}
-
-<h5 class="subheader">Recent Votes</h5>
-{% if elections_voted %}
-<ul>
-{% for election in elections_voted %}
-<li><a href="{% url "election@view" election.uuid %}">{{election.name}}</a></li>
-{% endfor %}
-</ul>
-{% else %}
-<em>none yet</em>
-{% endif %}
-<div class="row right"><a class="tiny button" href="{% url "elections@voted" %}">see all</a></div>
-<div class="row"></div>
-{% else %}
-{% if settings.SHOW_LOGIN_OPTIONS %}
-<h5>Log In to Start Voting</h5>
-{{login_box|safe}}
-{% else %}
-<p>
-Select an election to start voting. You will be asked for your voting credentials after you complete a ballot.
-</p>
-{% endif %}
-{% endif %}
-</div>
-</div>
-
 
 {% endblock %}

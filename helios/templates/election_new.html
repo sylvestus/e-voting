@@ -1,5 +1,6 @@
 {% extends TEMPLATE_BASE %}
 
+{% load widget_tweaks %}
 {% block content %}
 
   <h2 class="title">Create a New Election</h2>
@@ -10,7 +11,7 @@
 </p>
 {% endif %}
   
-  <form class="prettyform" action="" method="POST" id="create_election_form">
+  <!-- <form class="prettyform" action="" method="POST" id="create_election_form">
     <input type="hidden" name="csrf_token" value="{{csrf_token}}" />
     <table class="pretty">
      {{election_form.as_table}}
@@ -18,6 +19,76 @@
   <div>
   <label for="">&nbsp;</label><input type="submit" value="Next &gt;&gt;" id="next_button" />
   </div>
+  </form> -->
+  <form class="prettyform" action="" method="POST" id="create_election_form">
+    <input type="hidden" name="csrf_token" value="{{csrf_token}}" />
+    <!-- {{ csrf_token }} -->
+    
+    <div class="form-group">
+      <div class="name-container">
+        <div class="input-container">
+          <label for="">{{election_form.short_name.label}}</label>
+          {% render_field election_form.short_name class="form-control" type="text" %}
+        </div>
+          
+        <div class="input-container">
+          <label for="">{{election_form.name.label}}</label>
+          {% render_field election_form.name class="form-control"  type="text" %}
+        </div>
+      </div>
+      <div class="input-container">
+        <label for="">{{election_form.description.label}}</label>
+        {% render_field election_form.description class="form-control"  type="text" %}
+      </div>
+
+      <div class="input-container">
+        <label for="">{{election_form.election_type.label}}</label>
+        {% render_field election_form.election_type   %}
+      </div>
+      <!-- start flex -->
+      <div class="checkbox-container">
+        <div class="input-container">
+          <label for="">{{election_form.use_voter_aliases.label}}</label>
+          {% render_field election_form.use_voter_aliases class="form-check-input"  type="checkbox" %}
+          <span>{{election_form.use_voter_aliases.help_text}}</span>
+        </div>
+
+        <div class="input-container">
+          <label for="">{{election_form.randomize_answer_order.label}}</label>
+          {% render_field election_form.randomize_answer_order class="form-check-input"  type="checkbox" %}
+          <span>{{election_form.randomize_answer_order.help_text}}</span>
+        </div>
+
+        <div class="input-container">
+          <label for="">{{election_form.private_p.label}}</label>
+          {% render_field election_form.private_p class="form-check-input"  type="checkbox" %}
+          <span>{{election_form.private_p.help_text}}</span>
+        </div>
+      </div>
+      <!-- end flex -->
+      <div class="input-container">
+        <label for="">{{election_form.help_email.label}}</label>
+        {% render_field election_form.help_email class="form-control"  type="text" %}
+        <span>{{election_form.help_email.help_text}}</span>
+      </div>
+
+      <div class="votingtime-container">
+        <div class="input-container">
+          <label for="">{{election_form.voting_starts_at.label}}</label>
+          {% render_field election_form.voting_starts_at class="form-select"  type="text" %}
+          <br>
+          <span>{{election_form.voting_starts_at.help_text}}</span>
+        </div>
+
+        <div class="input-container">
+          <label for="">{{election_form.voting_ends_at.label}}</label>
+          {% render_field election_form.voting_ends_at class="form-select"  type="text" %}
+          <br>
+          <span>{{election_form.voting_ends_at.help_text}}</span>
+        </div>
+      </div>
+    </div>
+  <label for="">&nbsp;</label><input type="submit" value="Next &gt;&gt;" id="next_button" class="btn-submit"/>
   </form>
 
 {% endblock %}

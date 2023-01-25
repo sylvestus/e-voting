@@ -2,7 +2,11 @@
 {% block title %}Confirm Vote{% endblock %}
 
 {% block content %}
-<h1>{{election.name}} &mdash; Vote Successfully Cast!</h1>
+
+<div class="row text-center mt-3">
+  <h1 class="h1">{{election.name}}</h1>  
+  <h2 class="h2 my-3 text-success">Vote Successfully Cast!</h2>
+</div>
 
 <p>
     Congratulations, your vote has been <b><u>successfully cast</u></b>!
@@ -14,13 +18,13 @@
 </p>
 
 {% if logout %}
-<p><b>For your safety, we have logged you out.</b></p>
-<iframe width="0" height="0" border="0" frameborder="0" src="{% url "auth@logout" %}">
-</iframe>
+  <p><b>For your safety, we have logged you out.</b></p>
+  <iframe width="0" height="0" border="0" frameborder="0" src="{% url "auth@logout" %}">
+  </iframe>
 {% endif %}
 
-<p style="font-size: 1.4em;">
-[ <a href="{% url "election@view" election.uuid %}">return to election info</a> ]
-</p>
+<div class="mt-2">
+  <a class="btn btn-outline-primary btn-lg" href="{% url "election@view" election.uuid %}">Return to election info</a>
+</div>
 
 {% endblock %}

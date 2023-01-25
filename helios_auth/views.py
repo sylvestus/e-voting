@@ -185,6 +185,7 @@ def after(request):
   if user:
     # get the user and store any new data about him
     user_obj = User.update_or_create(user['type'], user['user_id'], user['name'], user['info'], user['token'])
+    #  user['name'],
     
     request.session['user'] = user
   else:

@@ -1,11 +1,18 @@
 {% extends TEMPLATE_BASE %}
 
 {% block content %}
-  <h2 class="title">Elections you Administer <span style="font-size:0.7em;">[<a href="/">back to home</a>]</span></h2>
+<div class="row text-center my-3">
+  <h1 class="h1">Elections you Administer<a href="/" class="btn btn-outline-primary ml-auto">Back home</a></h1>  
+</div>
 
-<ul>
-{% for election in elections %}
-<li> <a href="{% url "election@view" election.uuid %}">{{election.name}}</a><em> - {{election.num_voters}} voters / {{election.num_cast_votes}} cast votes</em></li>
+<ul class="list-group list-group-flush list-group-numbered">
+  {% for election in elections %}
+    <li class="list-group-item">
+       <h3 class="card-header">{{election.name}}</h3>
+       <p>Number of voters: <span class="fw-bold">{{election.num_voters}} voters</span></p>
+       <p>Number of cast votes: <span class="fw-bold">{{election.num_cast_votes}}</span></p>
+       <a class="btn btn-primary" href="{% url "election@view" election.uuid %}">View more info</a>
+      </li>
 {% endfor %}
 </ul>
 {% endblock %}

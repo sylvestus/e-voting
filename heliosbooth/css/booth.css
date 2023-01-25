@@ -6,7 +6,7 @@ body {
   margin: 0px;
 }
 
-#wrapper {
+/* #wrapper {
   position: absolute;
   padding: 0px;
   background: white;
@@ -15,7 +15,7 @@ body {
   margin-left: 100px;
   margin-top: 0px;
   width: 1000px;
-}
+} */
 
 #content {
   padding: 20px 30px 20px 30px;

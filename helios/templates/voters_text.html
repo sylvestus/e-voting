@@ -1,0 +1,80 @@
+{% extends TEMPLATE_BASE %}
+
+{% block title %}Contact Voters for {{election.name}}{% endblock %}
+{% block content %}
+<script>
+var voter_id = null;
+{% if voter %}
+voter_id = '{{voter.voter_id}}';
+{% endif %}
+</script>
+
+<div class="row text-center mt-3">
+  <h1 class="h1">{{election.name}} <a href="{% url "election@view" election.uuid %}" class="btn btn-outline-primary ml-auto">Back to election</a></h1>  
+  <h2 class="h2 my-3">Contact voters</h2>
+  <h4 class="h4 mb-3">Send text</h4>
+</div>
+
+{% if voter %}  
+  <p>
+    You are sending this text message to a specific user: <br>
+    <div class="card col-md-6">
+      <div class="card-body">
+         
+        <div class="card-header">Name: <p class="card-text text-capitalize">{{voter.name}}</p></div>
+        
+        <div class="card-header">Email address: <p class="card-text">{{voter.voter_id}}</p></div>
+        
+      </div>
+      
+    </div>
+  </p>
+{% endif %}
+
+<p>
+<b>Templates</b>:
+
+{% for template_option in templates %}
+{% if template_option.0 == template %}
+<b>{{template_option.1}}</b>
+{% else %}
+<a href="?template={{template_option.0}}&voter_id={{voter.voter_login_id}}">{{template_option.1}}</a>
+{% endif %}
+&nbsp;&nbsp;&nbsp;
+{% endfor %}
+
+<pre class="card p-3 col-md-12">
+Subject: {{default_subject}}
+
+{{default_body|safe}}
+</pre>
+
+<p>
+You may send a custom message using the form below.
+</p>
+
+  <form class="form-group" action="" method="POST" id="email_form">
+    <input type="hidden" name="csrf_token" value="{{csrf_token}}" />
+    <input type="hidden" name="template" value="{{template}}" />
+    <input type="hidden" name="voter_id" value="{{voter.voter_login_id}}" />
+    <!-- send a text -->
+    <div class="form-group">
+      {{text_form.as_p}}
+      <label for="">&nbsp;</label>
+      <input type="submit" value="Send email" id="send_button" class="btn btn-primary" />
+    </div>
+
+  </form>
+
+  <div id="processing">
+  </div>
+  
+  <div id="done" style="display:none;">
+    Done, go <a href="{% url "election@view" election.uuid %}">back to election</a>.
+  </div>
+
+  <div id="error" style="display:none;">
+    Error emailing participants. Check server settings, make sure there's an SMTP server.
+  </div>
+
+{% endblock %}

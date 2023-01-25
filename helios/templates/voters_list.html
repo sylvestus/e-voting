@@ -2,7 +2,10 @@
 
 {% block title %}Voters &amp; Ballot Tracking Center for {{election.name}}{% endblock %}
 {% block content %}
-  <h3 class="title">{{election.name}} &mdash; Voters and Ballot Tracking Center <span style="font-size:0.7em;">[<a href="{% url "election@view" election.uuid %}">back to election</a>]</span></h3>
+<div class="row text-center mt-3">
+  <h1 class="h1">{{election.name}} <a href="{% url "election@view" election.uuid %}" class="btn btn-outline-primary ml-auto">Back to election</a></h1>  
+  <h2 class="h2 my-3">Bulk Upload Voters</h2>
+</div>
 
 <p>
 <b>Who can vote?</b>
@@ -37,7 +40,13 @@ You can change this setting:
 {% endif %}
 
 {% if email_voters and election.frozen_at and admin_p %}
-<p><a class="button" href="{% url "election@voters@email" election.uuid %}">email voters</a></p>
+<div class="card col-sm-12 col-md-6 col-lg-4">
+  <div class="card-header">Contact voters</div>
+  <div class="card-body">
+    <a class="btn btn-danger btn-lg my-3" href="{% url "election@voters@email" election.uuid %}">email voters</a>
+    <a class="btn btn-success btn-lg my-3" href="{% url "election@voters@text" election.uuid %}">text voters</a>
+  </div>
+</div>
 {% endif %}
 
 {% if election.num_voters > 20 %}
@@ -54,7 +63,7 @@ You can change this setting:
 <!-- Add a Voter: WORK HERE-->
 {% if upload_p and not election.openreg %}
 <p>
-<a class="button" href="{% url "election@voters@upload" election_uuid=election.uuid %}">bulk upload voters</a>
+<a class="btn btn-primary btn-lg my-3" href="{% url "election@voters@upload" election_uuid=election.uuid %}">bulk upload voters</a>
 </p>
 
 {% if voter_files %}
@@ -93,7 +102,7 @@ Prior Bulk Uploads:
 {% if election.num_cast_votes %}
 {{election.num_cast_votes}} cast vote{% ifequal election.num_cast_votes 1 %}{% else %}s{% endifequal %}
 {% else %}
-no votes yet
+No cast votes yet
 {% endif %}
 </b>
 </p>
@@ -109,15 +118,17 @@ Voters {{voters_page.start_index}} - {{voters_page.end_index}} (of {{total_voter
 <a href="{% url "election@voters@list-pretty" election.uuid %}?page={{voters_page.next_page_number}}&limit={{limit}}&q={{q|urlencode}}">next {{limit}}</a> &nbsp;&nbsp;
 {% endif %}
 
-<table class="pretty">
+<table class="table table-bordered">
 <tr>
 {% if admin_p or not election.use_voter_aliases %}
 {% if admin_p %}
 <th style="width: 80px;">Actions</th>
-<th>Login</th>
+<th>Login id</th>
 <th>Email Address</th>
 {% endif %}
 <th>Name</th>
+<!-- phone ian edits -->
+<th>Phone</th>
 {% endif %}
 
 {% if election.use_voter_aliases %}
@@ -131,14 +142,18 @@ Voters {{voters_page.start_index}} - {{voters_page.end_index}} (of {{total_voter
 {% if admin_p %}
 <td style="white-space: nowrap;">
 {% if election.frozen_at %}
-[<a href="{% url "election@voters@email" election.uuid %}?voter_id={{voter.voter_login_id}}">email</a>]
+<a class="btn btn-success btn-sm" href="{% url "election@voters@email" election.uuid %}?voter_id={{voter.voter_login_id}}">email</a>
 {% endif %}
-[<a onclick="return confirm('are you sure you want to remove {{voter.name}} ?');" href="{% url "election@voter@delete" election.uuid voter.uuid %}">x</a>]
+<a class="btn btn-danger btn-sm" onclick="return confirm('are you sure you want to remove {{voter.name}} ?');" href="{% url "election@voter@delete" election.uuid voter.uuid %}">x</a>
 </td>
-<td>{{voter.voter_login_id}}</td>
+<td class="text-capitalize">{{voter.voter_login_id}}</td>
 <td>{{voter.voter_email}}</td>
 {% endif %}
 <td><img class="small-logo" src="/static/auth/login-icons/{{voter.voter_type}}.png" alt="{{voter.voter_type}}" /> {{voter.name}}</td>
+<td>{% if election.frozen_at %}
+  <a class="btn btn-danger btn-sm" href="{% url "election@voters@text" election.uuid %}?voter_id={{voter.voter_login_id}}">sent text</a>
+  {% endif %}
+  {{voter.voter_phone}}</td>
 {% endif %}
 {% if election.use_voter_aliases %}
 <td>{{voter.alias}}</td>
@@ -147,7 +162,6 @@ Voters {{voters_page.start_index}} - {{voters_page.end_index}} (of {{total_voter
 </tr>
 {% endfor %}
 </table>
-
 {% else %}
 <br /><br />
 <em>no voters.</em>

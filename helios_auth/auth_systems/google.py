@@ -56,8 +56,9 @@ def get_user_info_after_auth(request):
   # watch out, response also contains email addresses, but not sure whether thsoe are verified or not
   # so for email address we will only look at the id_token
   
-  return {'type' : 'google', 'user_id': email, 'name': name , 'info': {'email': email}, 'token':{}}
-    
+  return {'type' : 'google', 'user_id': email,'name': name , 'info': {'email': email}, 'token':{}}
+    # 
+
 def do_logout(user):
   """
   logout of Google

@@ -1,16 +1,29 @@
 {% extends TEMPLATE_BASE %}
 
 {% block content %}
-  <h2 class="title">{{election.name}} &mdash; Bulk Upload Voters &mdash; Confirm<span style="font-size:0.7em;">[<a href="{% url "election@view" election.uuid %}">back to election</a>]</span></h2>
+<div class="row text-center mt-3">
+  <h1 class="h1">{{election.name}} <a href="{% url "election@view" election.uuid %}" class="btn btn-outline-primary ml-auto">Back to election</a></h1>  
+  <h2 class="h2 my-3">Bulk Upload Voters</h2>
+</div>
 
 <p>
 You have uploaded a file of voters. The first few rows of this file are:
 </p>
 
-<table>
-<tr><th>Voter Login</th><th>Email Address</th><th>Name</th></tr>
+<table class="table table-light table-stripped">
+<tr>
+    <th scope="col">Voter Login</th>
+    <th scope="col">Email Address</th>
+    <th scope="col">Name</th>
+    <th scope="col">Phone</th>
+</tr>
 {% for v in voters %}
-<tr><td>{{v.voter_id}}</td><td>{{v.email}}</td><td>{{v.name}}</td></tr>
+<tr>
+  <td >{{v.voter_id}}</td>
+  <td>{{v.email}}</td>
+  <td>{{v.name}}</td>
+  <td>{{v.phone}}</td>
+</tr>
 {% endfor %}
 </table>
 
@@ -21,9 +34,8 @@ HOLD ON:<br />
 - {{problem}}<br />
 {% endfor %}
 </p>
-<br />
-
-<a href="{% url "election@voters@upload-cancel" election.uuid %}">never mind, upload a different file</a>
+Never mind, 
+<a class="btn btn-primary" href="{% url "election@voters@upload-cancel" election.uuid %}">Upload a different file</a>
 </p>
 
 {% else %}
@@ -31,10 +43,10 @@ HOLD ON:<br />
 <form method="post" action="" id="upload_form">
   Does this look right to you?
   <input type="hidden" name="confirm_p" value="1" />
-  <input type="submit" value="Yes, let's go" />
+  <input class="btn btn-success" type="submit" value="Yes, let's go" />
 </form>
 
-<a href="{% url "election@voters@upload-cancel" election.uuid %}">no, let me upload a different file</a>
+<a class="btn btn-danger" href="{% url "election@voters@upload-cancel" election.uuid %}">Upload a different file</a>
 
 {% endif %}
 

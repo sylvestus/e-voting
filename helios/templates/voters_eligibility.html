@@ -13,14 +13,14 @@ You may limit eligibility of voters to one of these categories, as defined by {{
 </p>
 
 <form method="post" action="">
-<input type="hidden" name="csrf_token" value="{{csrf_token}}" />
-<select name="category_id">
-<option value="" SELECTED>(no constraint)</option>
-{% for category in categories %}
-<option value="{{category.id}}"> {{category.name}}</option>
-{% endfor %}
-</select>
-<input type="submit" value="set eligibility" />
+  <input type="hidden" name="csrf_token" value="{{csrf_token}}" />
+  <select name="category_id">
+    <option value="" SELECTED>(no constraint)</option>
+    {% for category in categories %}
+    <option value="{{category.id}}"> {{category.name}}</option>
+    {% endfor %}
+  </select>
+  <input type="submit" value="set eligibility" />
 </form>
 </ul>
 {% endblock %}

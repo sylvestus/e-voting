@@ -8,12 +8,25 @@ var voter_id = null;
 voter_id = '{{voter.voter_id}}';
 {% endif %}
 </script>
-
-  <h2 class="title">{{election.name}} &mdash; Contact Voters <span style="font-size:0.7em;">[<a href="{% url "election@view" election.uuid %}">back to election</a>]</span></h2>
+<div class="row text-center mt-3">
+  <h1 class="h1">{{election.name}} <a href="{% url "election@view" election.uuid %}" class="btn btn-outline-primary ml-auto">Back to election</a></h1>  
+  <h2 class="h2 my-3">Contact voters</h2>
+  <h4 class="h4 mb-3">Email</h4>
+</div>
 
 {% if voter %}  
   <p>
-    You are sending this email to a specific user: <b>{{voter.name}} ({{voter.voter_id}})</b>
+    You are sending this email to a specific user: <br>
+    <div class="card col-md-6">
+      <div class="card-body">
+         
+        <div class="card-header">Name: <p class="card-text text-capitalize">{{voter.name}}</p></div>
+        
+        <div class="card-header">Email address: <p class="card-text">{{voter.voter_id}}</p></div>
+        
+      </div>
+      
+    </div>
   </p>
 {% endif %}
 
@@ -21,15 +34,15 @@ voter_id = '{{voter.voter_id}}';
 <b>Templates</b>:
 
 {% for template_option in templates %}
-{% if template_option.0 == template %}
-<b>{{template_option.1}}</b>
-{% else %}
-<a href="?template={{template_option.0}}&voter_id={{voter.voter_login_id}}">{{template_option.1}}</a>
-{% endif %}
-&nbsp;&nbsp;&nbsp;
+  {% if template_option.0 == template %}
+    <b>{{template_option.1}}</b>
+  {% else %}
+    <a href="?template={{template_option.0}}&voter_id={{voter.voter_login_id}}">{{template_option.1}}</a>
+  {% endif %}
+  &nbsp;&nbsp;&nbsp;
 {% endfor %}
 
-<pre style="margin:10px; border: 1px solid #888; padding:20px">
+<pre class="card p-3 col-md-12">
 Subject: {{default_subject}}
 
 {{default_body|safe}}
@@ -39,15 +52,17 @@ Subject: {{default_subject}}
 You may tweak the subject and add a custom message using the form below.
 </p>
 
-  <form class="prettyform" action="" method="POST" id="email_form">
+  <form class="form-group" action="" method="POST" id="email_form">
     <input type="hidden" name="csrf_token" value="{{csrf_token}}" />
     <input type="hidden" name="template" value="{{template}}" />
     <input type="hidden" name="voter_id" value="{{voter.voter_login_id}}" />
-    <table class="pretty">
-     {{email_form.as_table}}
-     </table>
+    <div class="form-group">
+      {{email_form.as_p}}
+      <label for="">&nbsp;</label>
+      <input type="submit" value="Send email" id="send_button" class="btn btn-primary" />
+    </div>
   <div>
-  <label for="">&nbsp;</label><input type="submit" value="Send" id="send_button" class="button" />
+  
   </div>
   </form>
   

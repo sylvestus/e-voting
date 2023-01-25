@@ -7,6 +7,8 @@ ben@adida.net
 import copy
 from celery import shared_task
 from celery.utils.log import get_logger
+# africastalking api
+from .send_text import send_mess
 
 from . import signals
 from .models import CastVote, Election, Voter, VoterFile
@@ -52,6 +54,32 @@ def voters_email(election_id, subject_template, body_template, extra_vars={},
     for voter in voters:
         single_voter_email.delay(voter.uuid, subject_template, body_template, extra_vars)
 
+# ian edits send text to multiple voters
+@shared_task
+def voters_text(election_id, subject_template, body_template, extra_vars={},
+                 voter_constraints_include=None, voter_constraints_exclude=None):
+    """
+    voter_constraints_include are conditions on including voters
+    voter_constraints_exclude are conditions on excluding voters
+    """
+    election = Election.objects.get(id=election_id)
+    
+    # select the right list of voters
+    voters = election.voter_set.all()
+    if voter_constraints_include:
+        voters = voters.filter(**voter_constraints_include)
+    if voter_constraints_exclude:
+        voters = voters.exclude(**voter_constraints_exclude)
+
+    for voter in voters:
+        the_vars = copy.copy(extra_vars)
+        the_vars.update({'election': voter.election})
+        the_vars.update({'voter': voter})
+
+        subject = render_template_raw(None, subject_template, the_vars)
+        body = render_template_raw(None, body_template, the_vars)
+        send_mess(body, voter.voter_phone)
+
 
 @shared_task
 def voters_notify(election_id, notification_template, extra_vars={}):
@@ -72,6 +100,21 @@ def single_voter_email(voter_uuid, subject_template, body_template, extra_vars={
     body = render_template_raw(None, body_template, the_vars)
 
     voter.send_message(subject, body)
+    print(voter.voter_phone)
+
+# ian edits --> single voter text
+@shared_task
+def single_voter_message(voter_uuid,voter_phone_number, subject_template, body_template, extra_vars={}):
+    voter = Voter.objects.get(uuid=voter_uuid)
+    voter_phone = voter.voter_phone
+    the_vars = copy.copy(extra_vars)
+    the_vars.update({'election': voter.election})
+    the_vars.update({'voter': voter})
+
+    subject = render_template_raw(None, subject_template, the_vars)
+    body = render_template_raw(None, body_template, the_vars)
+
+    send_mess(body,voter_phone)
 
 
 @shared_task

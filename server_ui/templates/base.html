@@ -9,6 +9,12 @@
   
   <link rel="stylesheet" href="/static/foundation/css/foundation.css">
   <link rel="stylesheet" href="/static/foundation-tweaks.css">
+  <link rel="stylesheet" href="/static/foundation/customform.css">
+  <!-- <link rel="stylesheet" href="/static/css/bootstrap.min.css"> -->
+  <script src="/static/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="/static/main.css">
+<!-- font awesome -->
+  <!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous"> -->
 
 {% if settings.DEBUG %}  
   <script src="/static/foundation/js/vendor/custom.modernizr.js"></script>
@@ -29,78 +35,110 @@
 </head>
 <body>
   <div class="wrapper">
-  <nav class="top-bar">
-    <ul class="title-area">
-      <!-- Title Area -->
-      <li class="name">
-        <h1><a href="/"><img src="/static/tinylogo.png"></a></h1>
-      </li>
-      <li class="toggle-topbar menu-icon"><a href="#"><span>menu</span></a></li>
-    </ul>
- 
-    <section class="top-bar-section">
-      <!-- Right Nav Section -->
-      <ul class="right">
-	{% if user and user.admin_p %}
-	<li><a href="{% url "stats@home" %}">Admin</a></li>
-	<li class="divider"></li>
-	{% endif %}
-	{% if not settings.MASTER_HELIOS %}
-	<li><a href="http://heliosvoting.org">About Helios</a></li>
-	{% endif %}
-      </ul>
-      
-      <ul>
-        <li><a href="/">{{settings.SITE_TITLE}}</a></li>
-	{% if settings.MASTER_HELIOS %}
-        <li class="divider"></li>
-        <li><a href="/about">About</a></li>
-        <li class="divider"></li>
-        <li><a target="_new" href="https://github.com/benadida/helios-server">Code</a></li>
-        <li class="divider"></li>
-        <li><a href="/docs">Docs</a></li>
-        <li class="divider"></li>
-        <li><a href="/faq">FAQ</a></li>
-        <li class="divider"></li>
-        <li><a href="/privacy">Privacy</a></li>
-	{% endif %}
-        <li class="divider"></li>
-        <li><a href="mailto:{{settings.HELP_EMAIL_ADDRESS}}">Help!</a></li>
-      </ul>
-    </section>
-  </nav>
+    <nav class="navbar navbar-dark bg-dark navbar-expand-lg">
+      <div class="container-fluid my-lg-2">
+          <!-- Title Area -->
+          <!-- logo -->
+        <a href="/" class="navbar-brand text-primary"><img src="/static/tinylogo.png" alt="" height="40" width="45">{{settings.SITE_TITLE}}</a>
+        <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+          <div class="navbar-nav ms-auto">
+            {% if user and user.admin_p %}
+              <a class="nav-item nav-link" href="{% url "stats@home" %}">Admin</a>
+            {% endif %}
+            {% if not settings.MASTER_HELIOS %}
+            <!-- temporary fix ian must do -->
+              <a class="nav-item nav-link btn btn-light active" href="/">Home</a>
+              <a class="nav-item nav-link" href="http://heliosvoting.org">About</a>
+            {% endif %}
+            {% if settings.MASTER_HELIOS %}
+              <a class="nav-item nav-link active" href="/">Home</a>
+              <a class="nav-item nav-link" href="/about">About</a>
+              <!-- <a class="nav-item nav-link" target="_new" href="https://github.com/benadida/helios-server" class="primary">Code</a>
+              <a class="nav-item nav-link" href="/docs">Docs</a> -->
+              <a class="nav-item nav-link" href="/faq">FAQ</a>
+              <a class="nav-item nav-link" href="/privacy">Privacy</a>
+            {% endif %}
+              <a class="nav-item nav-link" href="mailto:{{settings.HELP_EMAIL_ADDRESS}}">Contact us</a>
+          </div>
+          <div class="navbar-nav ms-auto">
+            {% if user %}
+              <span class="navbar-text text-white">{{user.display_html_small|safe}}</span>
+              <a href="{% url "auth@logout" %}?return_url={{CURRENT_URL}}" class="btn btn-outline-primary">Logout</a>
+            {% else %}
+              {% if voter %}
+              <span class="navbar-text text-white">Voter 
+                <strong class="text-primary">{% if voter.alias %}
+                  {{voter.alias}}
+                {% else %}
+                  {{voter.name}}
+                {% endif %}
+                </strong> in {{voter.election.name}}</span>
+                [<a href="{{settings.SECURE_URL_HOST}}{% url "auth@logout" %}?return_url={{CURRENT_URL}}" class="btn btn-outline-primary">Sign out</a>]
+              {% else %}
+                {% if settings.SHOW_LOGIN_OPTIONS %}
+                  <a class="btn btn-outline-primary" href="{{settings.SECURE_URL_HOST}}{% url "auth@index" %}?return_url={{CURRENT_URL}}">Log in</a>
+                {% else %}
+                <!-- for consideration -->
+                  <!-- powered by <a href="http://heliosvoting.org">Helios Voting</a>. -->
+                {% endif %}
+              {% endif %}
+            {% endif %}
+          </div>
+        </div> 
+      </div>
+    </nav>
 
 
-  <!-- Main Page Content and Sidebar -->
+    <!-- Main Page Content and Sidebar -->
 
-  <div class="row" id="contentbody">
-      {% block content %}{% endblock %}
-  </div>
+    <div class="container overflow-auto mb-5" id="contentbody">
+        {% block content %}{% endblock %}
+    </div>
   
-  <div class="push"></div>
+    <div class="push"></div>
   </div>
-
-  <div class="footer" id="footer">
-<!--    <span style="float:right;">
-      {% if settings.FOOTER_LOGO_URL %}
-      <img src="{{settings.FOOTER_LOGO_URL}}" />
-      {% endif %}
-    </span>-->
-    {% if user %}
-    logged in as <b>{{user.display_html_small|safe}}</b>&nbsp;&nbsp;
-    <a class="tiny button" href="{% url "auth@logout" %}?return_url={{CURRENT_URL}}">logout</a><br />
-    {% else %}
-    {% if voter %}
-    You are signed in as voter <u>{% if voter.alias %}{{voter.alias}}{% else %}{{voter.name}}{% endif %}</u> in election <u>{{voter.election.name}}</u>. [<a href="{{settings.SECURE_URL_HOST}}{% url "auth@logout" %}?return_url={{CURRENT_URL}}">sign out</a>]
-    {% else %}
-{% if settings.SHOW_LOGIN_OPTIONS %}
-    not logged in. <a class="tiny button" href="{{settings.SECURE_URL_HOST}}{% url "auth@index" %}?return_url={{CURRENT_URL}}">log in</a>
-{% else %}
-powered by <a href="http://heliosvoting.org">Helios Voting</a>.
-{% endif %}
-    {% endif %}
-    {% endif %}
-      <br clear="right" />
+  <!-- footer -->
+  <div class=" navbar-dark bg-dark text-white">
+    <div class="container pt-2 justify-content-center mt-4">
+    <!--    <span style="float:right;">
+        {% if settings.FOOTER_LOGO_URL %}
+        <img src="{{settings.FOOTER_LOGO_URL}}" />
+        {% endif %}
+      </span>-->
+        {% if user %}
+          <span>Logged in as</span>
+          <b>{{user.display_html_small|safe}}</b>&nbsp;&nbsp;
+          <a class="btn btn-secondary" href="{% url "auth@logout" %}?return_url={{CURRENT_URL}}">logout</a>
+          <br />
+        {% else %}
+        <!-- place in a p tag or span tag or strong => voter/name/alias in a <a> tag
+          to take the user to profile (maybe maybe not)-->
+        <!-- ian must do edits -->
+          {% if voter %}
+            You are signed in as voter 
+            <u>{% if voter.alias %}
+                {{voter.alias}}
+              {% else %}
+                {{voter.name}}
+              {% endif %}</u> 
+            in election 
+            <u>{{voter.election.name}}</u>. 
+            [<a href="{{settings.SECURE_URL_HOST}}{% url "auth@logout" %}?return_url={{CURRENT_URL}}" class="btn-secondary">sign out</a>]
+          {% else %}
+          <!-- ian must do edits => just have login button -->
+            {% if settings.SHOW_LOGIN_OPTIONS %}
+              You are not logged in. 
+              <a class="btn btn-secondary" href="{{settings.SECURE_URL_HOST}}{% url "auth@index" %}?return_url={{CURRENT_URL}}">log in</a>
+            {% else %}
+              powered by <a href="http://heliosvoting.org">Helios Voting</a>.
+            {% endif %}
+          {% endif %}
+        {% endif %}
+        <!-- Don't understand ian must do edits (maybe remove maybe not) -->
+          <br clear="right" />
     </div>
   
   </div>

@@ -54,6 +54,7 @@ ELECTION_VOTERS_LIST="election@voters@list"
 ELECTION_VOTERS_LIST_PRETTY="election@voters@list-pretty"
 ELECTION_VOTERS_ELIGIBILITY="election@voters@eligibility"
 ELECTION_VOTERS_EMAIL="election@voters@email"
+ELECTION_VOTERS_TEXT="election@voters@text"
 ELECTION_VOTER="election@voter"
 ELECTION_VOTER_DELETE="election@voter@delete"
 

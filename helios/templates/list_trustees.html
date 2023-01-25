@@ -3,30 +3,28 @@
 {% block title %}Trustees for {{election.name}}{% endblock %}
 
 {% block content %}
-  <h3 class="title">{{election.name}} &mdash; Trustees <span style="font-size:0.7em;">[<a href="{% url "election@view" election.uuid %}">back to election</a>]</span></h3>
-
-<p>
-    Trustees are responsible for decrypting the election result.<br />
-    Each trustee generates a keypair and submits the public portion to Helios.<br />
-    When it's time to decrypt, each trustee needs to provide their secret key.
-</p>
+  <div class="row text-center mt-3">
+    <h1 class="h1">{{election.name}} <a href="{% url "election@view" election.uuid %}" class="btn btn-outline-primary ml-auto">Back to election</a></h1>  
+    <h2 class="h2 my-3">Trustees</h2>
+  </div>
+  <p>
+      Trustees are responsible for decrypting the election result.<br />
+      Each trustee generates a keypair and submits the public portion to Helios.<br />
+      When it's time to decrypt, each trustee needs to provide their secret key.
+  </p>
 
 {% if not election.frozen_at %}
-
-<p>
-  Helios is automatically your first trustee and will handle its keypair generation and decryption automatically.<br />
-  You may add additional trustees if you want, and you can even remove the Helios trustee.<br />
-  However, we recommend you do this only if you have a solid understanding of the trustee's role.
-</p>
+<br />
+  <p>
+    Helios is automatically your first trustee and will handle its keypair generation and decryption automatically.<br />
+    You may add additional trustees if you want, and you can even remove the Helios trustee.<br />
+    However, we recommend you do this only if you have a solid understanding of the trustee's role.
+  </p>
 
 {% if admin_p %}
-<p>
-    [ <a onclick="return(confirm('Adding your own trustee requires a good bit more work to tally the election.\nYou will need to have trustees generate keypairs and safeguard their secret key.\n\nIf you are not sure what that means, we strongly recommend\nclicking Cancel and letting Helios tally the election for you.'));" href="{% url "election@trustees@new" election.uuid %}">add a trustee</a> ]
-</p>
+    <a class="btn btn-primary btn-lg" onclick="return(confirm('Adding your own trustee requires a good bit more work to tally the election.\nYou will need to have trustees generate keypairs and safeguard their secret key.\n\nIf you are not sure what that means, we strongly recommend\nclicking Cancel and letting Helios tally the election for you.'));" href="{% url "election@trustees@new" election.uuid %}">Add a trustee</a> 
 {% if not election.has_helios_trustee %}
-<p>
-    <a href="{% url "election@trustees@add-helios" election.uuid %}">add Helios as a trustee</a>
-</p>
+    <a class="btn btn-primary btn-lg" href="{% url "election@trustees@add-helios" election.uuid %}">add Helios as a trustee</a>
 {% endif %}
 {% endif %}
 
@@ -35,38 +33,42 @@
 {% if not trustees|length %}
 
 {% else %}
-{% for t in trustees %}
-<h5> Trustee #{{forloop.counter}}: {{t.name}} 
-{% if admin_p %}
-{% if t.secret_key %}
-{% if not election.frozen_at %}[<a onclick="return confirm('Are you sure you want to remove Helios as a trustee?');" href="{% url "election@trustees@delete" election.uuid %}?uuid={{t.uuid}}">x</a>]{% endif %}
-{% else %}
-({{t.email}})
-{% if not election.frozen_at %}[<a onclick="return confirm('Are you sure you want to remove this Trustee?');" href="{% url "election@trustees@delete" election.uuid %}?uuid={{t.uuid}}">x</a>]{% endif %}
-[<a onclick="return confirm('Are you sure you want to send this trustee his/her admin URL?');" href="{% url "election@trustee@send-url" election.uuid t.uuid %}">send login</a>]
-{% endif %}
-{% endif %}
-</h5>
-
-<p>
-{% if t.public_key_hash %}
-  Public Key Fingerprint: <tt style="font-size:1.5em;">{{t.public_key_hash}}</tt>
-{% else %}
-No public key uploaded yet.
-{% endif %}
-</p>
-
-{% if election.encrypted_tally %}
-{% if t.decryption_factors %}
-<b>tally recorded for this trustee.</b>
-{% else %}
-<em>waiting for this trustee's tally</em>
-{% endif %}
-{% endif %}
-</li>
-{% endfor %}
-</ul>
-
+  <ul class="list-group list-group-flush list-group-numbered border-bottom my-4">
+    <h3 class="card-title h3 fw-bold">Trustees list</h3>
+    {% for t in trustees %}  
+    <li class="list-group-item">
+      <span>{{t.name}}</span>
+      {% if admin_p %}
+        {% if t.secret_key %}
+          {% if not election.frozen_at %}
+            <a class="btn btn-danger mx-3 btn-sm" onclick="return confirm('Are you sure you want to remove Helios as a trustee?');" href="{% url "election@trustees@delete" election.uuid %}?uuid={{t.uuid}}">Remove</a>
+          {% endif %}
+        {% else %}
+        <span class="mx-3">{{t.email}}</span>
+          {% if not election.frozen_at %}
+            <a class="btn btn-danger mx-3 btn-sm"  onclick="return confirm('Are you sure you want to remove this Trustee?');" href="{% url "election@trustees@delete" election.uuid %}?uuid={{t.uuid}}">Remove</a>
+          {% endif %}
+          <a class="btn btn-primary mx-3 btn-sm"  onclick="return confirm('Are you sure you want to send this trustee his/her admin URL?');" href="{% url "election@trustee@send-url" election.uuid t.uuid %}">Send login</a>
+        {% endif %}
+      {% endif %}
+      <p>
+        {% if t.public_key_hash %}
+          Public Key Fingerprint: 
+          <span class="h4">{{t.public_key_hash}}</span>
+        {% else %}
+          No public key uploaded yet.
+        {% endif %}
+        </p>
+        {% if election.encrypted_tally %}
+          {% if t.decryption_factors %}
+            <b>tally recorded for this trustee.</b>
+          {% else %}
+            <em>waiting for this trustee's tally</em>
+          {% endif %}
+        {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
 {% endif %}
 
 {% endblock %}

@@ -11,10 +11,12 @@ TESTING = 'test' in sys.argv
 def get_from_env(var, default):
     if not TESTING and var in os.environ:
         return os.environ[var]
+        
     else:
         return default
 
 DEBUG = (get_from_env('DEBUG', '1') == '1')
+
 
 # add admins of the form: 
 #    ('Ben Adida', 'ben@adida.net'),
@@ -25,7 +27,7 @@ ADMINS = (
 MANAGERS = ADMINS
 
 # is this the master Helios web site?
-MASTER_HELIOS = (get_from_env('MASTER_HELIOS', '0') == '1')
+MASTER_HELIOS = (get_from_env('MASTER_HELIOS', '0') == '0')
 
 # show ability to log in? (for example, if the site is mostly used by voters)
 # if turned off, the admin will need to know to go to /auth/login manually
@@ -35,11 +37,25 @@ SHOW_LOGIN_OPTIONS = (get_from_env('SHOW_LOGIN_OPTIONS', '1') == '1')
 # to display who created the election
 SHOW_USER_INFO = (get_from_env('SHOW_USER_INFO', '1') == '1')
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'helios',
+#         'CONN_MAX_AGE': 600,
+#     },
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'helios',
-        'CONN_MAX_AGE': 600,
+        'NAME' : 'helios',
+        'USER': 'silvano',
+        'PASSWORD': 'access',
+        'HOST': 'localhost',
+        # 'PORT': '5432',
+        'PORT': '5432'
+        # 'NAME': 'helios',
+        # 'CONN_MAX_AGE': 600,
     },
 }
 
@@ -54,7 +70,8 @@ if get_from_env('DATABASE_URL', None):
 # although not all choices may be available on all operating systems.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = 'America/Los_Angeles'
+# TIME_ZONE = 'America/Los_Angeles'
+TIME_ZONE = 'Africa/Nairobi'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -87,8 +104,8 @@ SECRET_KEY = get_from_env('SECRET_KEY', 'replaceme')
 # If in production, you got a bad request (400) error
 #More info: https://docs.djangoproject.com/en/1.7/ref/settings/#allowed-hosts (same for 1.6)
 
-ALLOWED_HOSTS = get_from_env('ALLOWED_HOSTS', 'localhost').split(",")
-
+# ALLOWED_HOSTS = get_from_env('ALLOWED_HOSTS', 'localhost,192.168.1.209,192.168.1.243,127.0.0.1', ).split(",")
+ALLOWED_HOSTS = ['*']
 # Secure Stuff
 if get_from_env('SSL', '0') == '1':
     SECURE_SSL_REDIRECT = True
@@ -151,6 +168,7 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
+    'widget_tweaks',
     ## HELIOS stuff
     'helios_auth',
     'helios',
@@ -168,22 +186,25 @@ MEDIA_ROOT = ROOT_PATH + "media/"
 VOTER_UPLOAD_REL_PATH = "voters/%Y/%m/%d"
 
 
+# ian email_settings edits
+"""
 # Change your email settings
 DEFAULT_FROM_EMAIL = get_from_env('DEFAULT_FROM_EMAIL', 'ben@adida.net')
 DEFAULT_FROM_NAME = get_from_env('DEFAULT_FROM_NAME', 'Ben for Helios')
 SERVER_EMAIL = '%s <%s>' % (DEFAULT_FROM_NAME, DEFAULT_FROM_EMAIL)
+"""
 
 LOGIN_URL = '/auth/'
 LOGOUT_ON_CONFIRMATION = True
 
 # The two hosts are here so the main site can be over plain HTTP
 # while the voting URLs are served over SSL.
-URL_HOST = get_from_env("URL_HOST", "http://localhost:8000").rstrip("/")
+# URL_HOST = get_from_env("URL_HOST", "https://ec8e-41-90-111-246.ngrok.io/").rstrip("/")
 
 # IMPORTANT: you should not change this setting once you've created
 # elections, as your elections' cast_url will then be incorrect.
-# SECURE_URL_HOST = "https://localhost:8443"
-SECURE_URL_HOST = get_from_env("SECURE_URL_HOST", URL_HOST).rstrip("/")
+SECURE_URL_HOST = "http://localhost:8000"
+# SECURE_URL_HOST = get_from_env("SECURE_URL_HOST", URL_HOST).rstrip("/")
 
 # election stuff
 SITE_TITLE = get_from_env('SITE_TITLE', 'Helios Voting')
@@ -215,8 +236,12 @@ AUTH_ENABLED_SYSTEMS = get_from_env('AUTH_ENABLED_SYSTEMS',
 AUTH_DEFAULT_SYSTEM = get_from_env('AUTH_DEFAULT_SYSTEM', get_from_env('AUTH_DEFAULT_AUTH_SYSTEM', None))
 
 # google
-GOOGLE_CLIENT_ID = get_from_env('GOOGLE_CLIENT_ID', '')
-GOOGLE_CLIENT_SECRET = get_from_env('GOOGLE_CLIENT_SECRET', '')
+# GOOGLE_CLIENT_ID = get_from_env('GOOGLE_CLIENT_ID', '')
+# GOOGLE_CLIENT_SECRET = get_from_env('GOOGLE_CLIENT_SECRET', '')
+GOOGLE_CLIENT_ID = '345820110979-0kcgph6o48hep5s51t29bjv00o4nb139.apps.googleusercontent.com'
+# GOOGLE_CLIENT_SECRET = get_from_env('GOOGLE_CLIENT_SECRET', '')
+GOOGLE_CLIENT_SECRET = 'pGFgwrUSNbBjZePBSbPbULil'
+
 
 # facebook
 FACEBOOK_APP_ID = get_from_env('FACEBOOK_APP_ID','')
@@ -250,12 +275,30 @@ CLEVER_CLIENT_SECRET = get_from_env('CLEVER_CLIENT_SECRET', "")
 GH_CLIENT_ID = get_from_env('GH_CLIENT_ID', '')
 GH_CLIENT_SECRET = get_from_env('GH_CLIENT_SECRET', '')
 
+
+# email ian mail_edits
+DEFAULT_FROM_EMAIL = 'kkip762@gmail.com'
+DEFAULT_FROM_NAME = 'Kipngetich'
+SERVER_EMAIL = '%s <%s>' % (DEFAULT_FROM_NAME, DEFAULT_FROM_EMAIL)
+# end ian email edits
+
+
+# ian email edits
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'iankips17@gmail.com'
+EMAIL_HOST_PASSWORD = 'oujponbkuauameii'
+EMAIL_USE_TLS = True
+# end ian email edits
+"""
 # email server
 EMAIL_HOST = get_from_env('EMAIL_HOST', 'localhost')
 EMAIL_PORT = int(get_from_env('EMAIL_PORT', "2525"))
 EMAIL_HOST_USER = get_from_env('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = get_from_env('EMAIL_HOST_PASSWORD', '')
 EMAIL_USE_TLS = (get_from_env('EMAIL_USE_TLS', '0') == '1')
+"""
 
 # to use AWS Simple Email Service
 # in which case environment should contain
@@ -286,3 +329,4 @@ if ROLLBAR_ACCESS_TOKEN:
     'access_token': ROLLBAR_ACCESS_TOKEN,
     'environment': 'development' if DEBUG else 'production',  
   }
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'

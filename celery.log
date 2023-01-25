@@ -1,0 +1,84 @@
+ 
+ -------------- celery@techsavanna.net v5.1.2 (sun-harmonics)
+--- ***** ----- 
+-- ******* ---- Linux-4.15.0-147-generic-x86_64-with-Ubuntu-18.04-bionic 2021-11-16 12:20:17
+- *** --- * --- 
+- ** ---------- [config]
+- ** ---------- .> app:         __main__:0x7fa4f2b7efd0
+- ** ---------- .> transport:   amqp://guest:**@localhost:5672//
+- ** ---------- .> results:     disabled://
+- *** --- * --- .> concurrency: 16 (prefork)
+-- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+--- ***** ----- 
+ -------------- [queues]
+                .> celery           exchange=celery(direct) key=celery
+                
+
+[tasks]
+  . helios.celery_app.debug_task
+  . helios.tasks.cast_vote_verify_and_store
+  . helios.tasks.election_compute_tally
+  . helios.tasks.election_notify_admin
+  . helios.tasks.single_voter_email
+  . helios.tasks.single_voter_message
+  . helios.tasks.single_voter_notify
+  . helios.tasks.tally_helios_decrypt
+  . helios.tasks.voter_file_process
+  . helios.tasks.voters_email
+  . helios.tasks.voters_notify
+  . helios.tasks.voters_text
+
+[2021-11-16 12:20:18,818: INFO/MainProcess] Connected to amqp://guest:**@127.0.0.1:5672//
+[2021-11-16 12:20:18,840: INFO/MainProcess] mingle: searching for neighbors
+[2021-11-16 12:20:19,865: INFO/MainProcess] mingle: all alone
+[2021-11-16 12:20:19,891: WARNING/MainProcess] /home/techsavanna/.local/lib/python3.7/site-packages/celery/fixups/django.py:204: UserWarning: Using settings.DEBUG leads to a memory
+            leak, never use this setting in production environments!
+  leak, never use this setting in production environments!''')
+
+[2021-11-16 12:20:19,892: INFO/MainProcess] celery@techsavanna.net ready.
+[2021-11-16 12:28:19,312: INFO/MainProcess] Task helios.tasks.cast_vote_verify_and_store[7989bb57-48c9-4542-a6ed-77cb171b67a1] received
+[2021-11-16 12:28:22,463: INFO/ForkPoolWorker-16] Task helios.tasks.cast_vote_verify_and_store[7989bb57-48c9-4542-a6ed-77cb171b67a1] succeeded in 3.127241547917947s: None
+
+Restarting celery worker (/home/techsavanna/.local/bin/celery -A helios worker -l info)
+ 
+ -------------- celery@techsavanna.net v5.1.2 (sun-harmonics)
+--- ***** ----- 
+-- ******* ---- Linux-4.15.0-147-generic-x86_64-with-Ubuntu-18.04-bionic 2021-11-16 17:18:15
+- *** --- * --- 
+- ** ---------- [config]
+- ** ---------- .> app:         __main__:0x7f061679b650
+- ** ---------- .> transport:   amqp://guest:**@localhost:5672//
+- ** ---------- .> results:     disabled://
+- *** --- * --- .> concurrency: 16 (prefork)
+-- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+--- ***** ----- 
+ -------------- [queues]
+                .> celery           exchange=celery(direct) key=celery
+                
+
+[tasks]
+  . helios.celery_app.debug_task
+  . helios.tasks.cast_vote_verify_and_store
+  . helios.tasks.election_compute_tally
+  . helios.tasks.election_notify_admin
+  . helios.tasks.single_voter_email
+  . helios.tasks.single_voter_message
+  . helios.tasks.single_voter_notify
+  . helios.tasks.tally_helios_decrypt
+  . helios.tasks.voter_file_process
+  . helios.tasks.voters_email
+  . helios.tasks.voters_notify
+  . helios.tasks.voters_text
+
+[2021-11-16 17:18:16,339: INFO/MainProcess] Connected to amqp://guest:**@127.0.0.1:5672//
+[2021-11-16 17:18:16,354: INFO/MainProcess] mingle: searching for neighbors
+[2021-11-16 17:18:17,375: INFO/MainProcess] mingle: all alone
+[2021-11-16 17:18:17,398: WARNING/MainProcess] /home/techsavanna/.local/lib/python3.7/site-packages/celery/fixups/django.py:204: UserWarning: Using settings.DEBUG leads to a memory
+            leak, never use this setting in production environments!
+  leak, never use this setting in production environments!''')
+
+[2021-11-16 17:18:17,399: INFO/MainProcess] celery@techsavanna.net ready.
+[2021-11-17 11:09:48,777: INFO/MainProcess] Task helios.tasks.cast_vote_verify_and_store[f0ff74a4-b463-4482-8cc4-637880705c38] received
+[2021-11-17 11:09:52,557: INFO/ForkPoolWorker-16] Task helios.tasks.cast_vote_verify_and_store[f0ff74a4-b463-4482-8cc4-637880705c38] succeeded in 3.7443395380396396s: None
+[2021-11-17 11:24:08,969: INFO/MainProcess] Task helios.tasks.cast_vote_verify_and_store[33ba1abe-5f6f-4d55-901a-48be55afd75a] received
+[2021-11-17 11:24:12,122: INFO/ForkPoolWorker-16] Task helios.tasks.cast_vote_verify_and_store[33ba1abe-5f6f-4d55-901a-48be55afd75a] succeeded in 3.144739728886634s: None

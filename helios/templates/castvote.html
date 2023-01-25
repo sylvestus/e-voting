@@ -2,24 +2,33 @@
 
 {% block title %}{{cast_vote.vote_tinyhash}} &mdash; {{election.name}}{% endblock %}
 {% block content %}
-<h2 class="title">Cast Vote {{cast_vote.vote_tinyhash}}</h2>
-cast in <a href="{% url "election@view" election.uuid %}">{{election.name}}</a><br />
-Fingerprint: <tt>{{cast_vote.vote_hash}}</tt><br />
-by <b><u>
-{% if the_voter.alias %}
-{{the_voter.alias}}
-{% else %}
-{{the_voter.name}}
-{% endif %}
-</u></b>
-<br /><br />
-<a href="#" onclick="$('#castvote_content').slideToggle(250); return false;">details</a><br /><br />
-<div style="display:none;" id="castvote_content">
-<textarea cols="100" rows="10">
-{{vote_content}}
-</textarea>
-</div>
-<br /><br />
+    <div class="row text-center mt-3">
+        <h2 class="title">Cast Vote {{cast_vote.vote_tinyhash}}</h2>  
+    </div>
+    <p>
+    This vote was cast in <a href="{% url "election@view" election.uuid %}">{{election.name}}</a> election
+    </p>
+    <p>
+    Election Fingerprint: <span class="fw-bold h5">{{cast_vote.vote_hash}}</span><br />
+    </p>
+    <p>And it was created by <b><u>
+        {% if the_voter.alias %}
+            {{the_voter.alias}}
+        {% else %}
+            {{the_voter.name}}
+        {% endif %}
+        </u></b>
+    <br /><br />
+    <a href="#" onclick="$('#castvote_content').slideToggle(250); return false;" class="btn btn-primary">Vote details</a><br /><br />
+    <div style="display:none;" id="castvote_content">
+        <textarea cols="100" rows="10">
+            {{vote_content}}
+        </textarea>
+        <!-- <p class="card p-3 bg-light">
+            {{vote_content}}
+        </p> -->
+    </div>
+    <br /><br />
 
 
 

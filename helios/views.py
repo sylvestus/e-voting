@@ -337,12 +337,20 @@ def one_election_view(request, election):
     status_update_message = "Results are in for %s" % election.name
   
   trustees = Trustee.get_by_election(election)
+  # no. of voters in the election-view template
+  order_by = 'user__user_id'
+  voters = Voter.objects.filter(election = election).order_by(order_by).defer('vote')
+  limit = int(request.GET.get('limit', 50))
+
+  voter_paginator = Paginator(voters, limit)
+
+  total_voters = voter_paginator.count
 
   # should we show the result?
   show_result = election.result_released_at or (election.result and admin_p)
 
   return render_template(request, 'election_view',
-                         {'election' : election, 'trustees': trustees, 'admin_p': admin_p, 'user': user,
+                         {'election' : election, 'trustees': trustees, 'admin_p': admin_p, 'user': user,'total_voters' :total_voters,
                           'voter': voter, 'votes': votes, 'notregistered': notregistered, 'eligible_p': eligible_p,
                           'can_feature_p': can_feature_p, 'election_url' : election_url, 
                           'vote_url': vote_url, 'election_badge_url' : election_badge_url,
@@ -650,7 +658,7 @@ def one_election_cast_confirm(request, election):
       'vote' : vote,
       'voter' : voter,
       'vote_hash': vote_fingerprint,
-      'cast_at': datetime.datetime.utcnow(),
+      'cast_at': datetime.datetime.now(),
       'cast_ip': cast_ip
     }
 
@@ -936,7 +944,7 @@ def one_election_archive(request, election):
   archive_p = request.GET.get('archive_p', True)
   
   if bool(int(archive_p)):
-    election.archived_at = datetime.datetime.utcnow()
+    election.archived_at = datetime.datetime.now()
   else:
     election.archived_at = None
     
@@ -1068,9 +1076,9 @@ def one_election_compute_tally(request, election):
   check_csrf(request)
 
   if not election.voting_ended_at:
-    election.voting_ended_at = datetime.datetime.utcnow()
+    election.voting_ended_at = datetime.datetime.now()
 
-  election.tallying_started_at = datetime.datetime.utcnow()
+  election.tallying_started_at = datetime.datetime.now()
   election.save()
 
   tasks.election_compute_tally.delay(election_id = election.id)
@@ -1409,6 +1417,101 @@ def voters_email(request, election):
     
   return render_template(request, "voters_email", {
       'email_form': email_form, 'election': election,
+      'voter': voter,
+      'default_subject': default_subject,
+      'default_body' : default_body,
+      'template' : template,
+      'templates' : TEMPLATES})    
+
+
+# text view
+@election_admin(frozen=True)
+def voters_text(request, election):
+  if not VOTERS_EMAIL:
+    return HttpResponseRedirect(settings.SECURE_URL_HOST + reverse(url_names.election.ELECTION_VIEW, args=[election.uuid]))
+  TEMPLATES = [
+    ('vote', 'Time to Vote'),
+    ('simple', 'Simple'),
+    ('info', 'Additional Info'),
+    ('result', 'Election Result')
+    ]
+
+  template = request.GET.get('template', 'vote')
+  if not template in [t[0] for t in TEMPLATES]:
+    raise Exception("bad template")
+
+  voter_id = request.GET.get('voter_id', None)
+
+  if voter_id:
+    voter = Voter.get_by_election_and_voter_id(election, voter_id)
+  else:
+    voter = None
+  
+  election_url = get_election_url(election)
+  election_vote_url = get_election_govote_url(election)
+
+  default_subject = render_template_raw(None, 'email/%s_subject.txt' % template, {
+      'custom_subject': "&lt;SUBJECT&gt;"
+  })
+  default_body = render_template_raw(None, 'email/%s_body.txt' % template, {
+      'election' : election,
+      'election_url' : election_url,
+      'election_vote_url' : election_vote_url,
+      'custom_subject' : default_subject,
+      'custom_message': '&lt;BODY&gt;',
+      'voter': {'vote_hash' : '<SMART_TRACKER>',
+                'name': '<VOTER_NAME>',
+                'voter_login_id': '<VOTER_LOGIN_ID>',
+                'voter_password': '<VOTER_PASSWORD>',
+                'voter_type' : election.voter_set.all()[0].voter_type,
+                'election' : election}
+      })
+
+  if request.method == "GET":
+    text_form = forms.TextVotersForm(initial={'subject': election.name, 'body': ' '})
+    if voter:
+      text_form.fields['send_to'].widget = text_form.fields['send_to'].hidden_widget()
+  else:   
+    
+    text_form = forms.TextVotersForm(request.POST)
+    
+    if text_form.is_valid():
+      
+      # the client knows to submit only once with a specific voter_id
+      subject_template = 'email/%s_subject.txt' % template
+      body_template = 'email/%s_body.txt' % template
+
+      extra_vars = {
+        'custom_subject' : text_form.cleaned_data['subject'],
+        'custom_message' : text_form.cleaned_data['body'],
+        'election_vote_url' : election_vote_url,
+        'election_url' : election_url
+        }
+        
+      voter_constraints_include = None
+      voter_constraints_exclude = None
+
+      if voter:
+        # ian edits
+        tasks.single_voter_message.delay(voter_uuid = voter.uuid, voter_phone_number= voter.voter_phone, subject_template = subject_template, body_template = body_template, extra_vars = extra_vars)
+      else:
+        # exclude those who have not voted
+        if text_form.cleaned_data['send_to'] == 'voted':
+          voter_constraints_exclude = {'vote_hash' : None}
+          
+        # include only those who have not voted
+        if text_form.cleaned_data['send_to'] == 'not-voted':
+          voter_constraints_include = {'vote_hash': None}
+      # must do ian edits 
+        tasks.voters_text.delay(election_id = election.id, subject_template = subject_template, body_template = body_template, extra_vars = extra_vars, voter_constraints_include = voter_constraints_include, voter_constraints_exclude = voter_constraints_exclude)
+
+      # this batch process is all async, so we can return a nice note
+      return HttpResponseRedirect(settings.SECURE_URL_HOST + reverse(url_names.election.ELECTION_VIEW, args=[election.uuid]))
+
+ 
+  return render_template(request, "voters_text", {
+      'text_form': text_form,
+      'election': election,
       'voter': voter,
       'default_subject': default_subject,
       'default_body' : default_body,

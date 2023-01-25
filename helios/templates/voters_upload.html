@@ -1,46 +1,50 @@
 {% extends TEMPLATE_BASE %}
 
 {% block content %}
-  <h2 class="title">{{election.name}} &mdash; Bulk Upload Voters <span style="font-size:0.7em;">[<a href="{% url "election@view" election.uuid %}">back to election</a>]</span></h2>
+<div class="container">
+  <div class="row text-center mt-3">
+    <h1 class="h1">{{election.name}} <a href="{% url "election@view" election.uuid %}" class="btn btn-outline-primary ml-auto">Back to election</a></h1>  
+    <h2 class="h2 my-3">Bulk Upload Voters</h2>
+  </div>
 
-<form method="post" action="" id="upload_form" enctype="multipart/form-data">
-  <p>
-    If you would like to specify your list of voters by name and email address,<br />
-    you can bulk upload a list of such voters here.<br /><br />
+  <form method="post" action="" id="upload_form" enctype="multipart/form-data">
+    <p>
+      If you would like to specify your list of voters by name and email address,<br />
+      you can bulk upload a list of such voters here.<br /><br />
 
-    Please prepare a text file of comma-separated values with the fields:
-</p>
-<pre>
-   &lt;unique_id&gt;,&lt;email&gt,&lt;full name&gt;
-</pre>
+      Please prepare a text file of comma-separated values with the fields:
+    </p>
+    <pre>
+      &lt;unique_id&gt;,&lt;email&gt,&lt;full name&gt;,&lt;phone number&gt;
+    </pre>
 
-<p>
-For example:
-  </p>
-  <pre>
-      benadida,ben@adida.net,Ben Adida
-      bobsmith,bob@acme.org,Bob Smith
-      ...
-  </pre> 
+    <p>
+    For example:
+    </p>
+    <pre>
+        benadida,ben@adida.net,Ben Adida,+254712123456
+        bobsmith,bob@acme.org,Bob Smith,+254712123456
+        ...
+    </pre> 
 
-  <p>
-    The easiest way to prepare such a file is to use a spreadsheet program and to export as "CSV".
-  </p>
-  {% if error %}
-  <div style="color: red;">{{error}}</div>
-  {% endif %}
-    <input type="hidden" name="csrf_token" value="{{csrf_token}}" />
-    
-    <input type="file" name="voters_file" />
-    <input type="submit" value="go" />
-</form>
+    <p>
+      The easiest way to prepare such a file is to use a spreadsheet program and to export as "CSV".
+    </p>
+    {% if error %}
+    <div style="color: red;">{{error}}</div>
+    {% endif %}
+      <input type="hidden" name="csrf_token" value="{{csrf_token}}" />
+      
+      <input type="file" class="form-control" name="voters_file" />
+      <input type="submit" value="Process the file" class="btn btn-primary"/>
+  </form>
 
-<div id="processing">
+  <div id="processing">
+  </div>
+
+  <div id="done" style="display:none;">
+    OK, done uploading.<br />
+    You can now <a href="./manage">view the list of voters</a>.
+  </div>
 </div>
-
-<div id="done" style="display:none;">
-  OK, done uploading.<br />
-  You can now <a href="./manage">view the list of voters</a>.
-</div>
-
 {% endblock %}
